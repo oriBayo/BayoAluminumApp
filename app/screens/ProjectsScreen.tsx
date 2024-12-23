@@ -1,22 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import ProjectsGrid from '../components/ProjectsGrid';
-import { ProjectType } from '../types';
-import { fetchProjectsFromDB } from '../actions/projectActions';
-import { IconButton } from 'react-native-paper';
+import { ActivityIndicator, IconButton, Text } from 'react-native-paper';
 import ProjectDialog from '../components/ProjectDialog';
+import useFetchProjects from '../hooks/useFetchProjects';
 
 function ProjectsScreen() {
-  const [projects, setProjects] = useState<ProjectType[]>([]);
   const [visible, setVisible] = useState(false);
+  const { error, loading, projects } = useFetchProjects();
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      const projectsData = await fetchProjectsFromDB();
-      setProjects(projectsData);
-    };
-    fetchProjects();
-  }, []);
+  if (loading) {
+    return (
+      <ActivityIndicator
+        style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        size='large'
+        color='#343a40'
+      />
+    );
+  }
+
+  if (!loading && error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text variant='displaySmall'>{error}</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={{ justifyContent: 'center', marginBottom: 20 }}>
